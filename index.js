@@ -16,7 +16,34 @@ function showAlert(message, className) {
   const container = document.querySelector(".container");
   const main = document.querySelector(".main");
   container.insertBefore(div, main);
-  setTimeout(() => document.querySelector(".alert").remove(), 3000);
+  setTimeout(() => document.querySelector(".alert").remove(), 4000);
+}
+
+function sendDataToServer(data) {
+  return new Promise((resolve, reject) => {
+    showAlert("Відправляємо дані на сервер...", "info");
+    setTimeout(() => {
+      console.log('Дані відправлено на сервер:', data);
+
+      // Зберігаємо дані в LocalStorage перед викликом resolve
+      saveDataToLocalStorage(data);
+
+      // Після успішної відправки на сервер викликаємо callback-функцію resolve
+      resolve(true);
+    }, 4000);
+  });
+}
+
+function getDataFromServer() {
+  return new Promise((resolve, reject) => {
+      showAlert("Отримуємо дані з сервера...", "info");
+      setTimeout(() => {
+          const simulatedData = [ /* Тут можна вставити імітовані дані з сервера, наприклад, масив об'єктів */ ];
+          console.log('Дані отримано з сервера:', simulatedData);
+          showAlert("Дані успішно отримано з сервера!", "success");
+          resolve(simulatedData); // Повертаємо імітовані дані
+      }, 4000); // Імітуємо затримку в 2 секунди
+  });
 }
 
 // Clear all fields
@@ -65,6 +92,9 @@ function loadDataFromLocalStorage() {
     // <a href="#" class="btn btn-warning btn-sm edit">Edit</a>
     list.appendChild(row);
   });
+  function clearLocalStorageAfterPublish() {
+    localStorage.removeItem("userData");
+}
 }
 
 // Check Network Connection
@@ -89,6 +119,7 @@ function updatePageBasedOnNetworkStatus() {
 // Add Data
 document.querySelector("#user-form").addEventListener("submit", (e) => {
   e.preventDefault();
+
 
   // Get Form Values
   const firstNameInput = document.querySelector("#firstName");
@@ -155,17 +186,34 @@ document.querySelector("#user-form").addEventListener("submit", (e) => {
       email,
     };
 
-    saveDataToLocalStorage(userData);
-    showAlert("Дані збережено", "success");
+    if (checkNetworkConnection()) {
+      sendDataToServer(userData)
+        .then(() => {
 
-    clearFields();
-    selectedRow = null;
+          showAlert("Дані успішно відправлено на сервер!", "success");
 
-    // Update the page based on network status
-    updatePageBasedOnNetworkStatus();
+          // Викликаємо функцію для отримання даних з сервера і оновлення сторінки
+          getDataFromServer()
+            .then((dataFromServer) => {
+              showAlert("Дані успішно отримано з сервера!", "success");
+              loadDataFromLocalStorage();
+            })
+            .catch(() => {
+              showAlert("Виникла помилка при отриманні даних з сервера", "danger");
+            });
+        })
+        .catch(() => {
+          showAlert("Виникла помилка при відправці даних на сервер", "danger");
+        });
+    } else {
+      saveDataToLocalStorage(userData);
+      showAlert("Дані збережено в LocalStorage", "success");
+      clearFields();
+      selectedRow = null;
+      updatePageBasedOnNetworkStatus();
+    }
   }
 });
-
 // // Edit Data
 // document.querySelector("#user-list").addEventListener("click", (e) => {
 //   target = e.target;
@@ -214,7 +262,18 @@ window.addEventListener("online", () => {
     "success"
   );
   // Load data from LocalStorage and update the page
-  loadDataFromLocalStorage();
+  // loadDataFromLocalStorage();
+  if (checkNetworkConnection()) {
+    getDataFromServer().then(dataFromServer => {
+        
+        showAlert("Дані успішно отримано з сервера!", "success");
+        loadDataFromLocalStorage();
+    }).catch(() => {
+        showAlert("Виникла помилка при отриманні даних з сервера", "danger");
+    });
+} else {
+    loadDataFromLocalStorage();
+}
 });
 
 // Add event listener for network status changes
