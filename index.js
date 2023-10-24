@@ -42,7 +42,7 @@ function getDataFromServer() {
           console.log('Дані отримано з сервера:', simulatedData);
           showAlert("Дані успішно отримано з сервера!", "success");
           resolve(simulatedData); // Повертаємо імітовані дані
-      }, 4000); // Імітуємо затримку в 2 секунди
+      }, 4000);
   });
 }
 
