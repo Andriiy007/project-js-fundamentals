@@ -1,3 +1,7 @@
+посилання на Web-додаток 
+https://fandrii.github.io/project-js-fundamentals/
+
+
 # Project requirements
 💾🗄️💻
 
