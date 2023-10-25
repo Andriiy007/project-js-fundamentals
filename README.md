@@ -1,5 +1,9 @@
-посилання на Web-додаток 
+посилання на Web-додаток:
 https://fandrii.github.io/project-js-fundamentals/
+
+посилання на презентацію:
+https://youtu.be/F8Df0wbKjNs?si=zab7_y-IMei_PwIH
+
 
 
 # Project requirements
